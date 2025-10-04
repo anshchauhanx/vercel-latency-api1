@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import json
 import numpy as np
 
@@ -15,6 +16,18 @@ app.add_middleware(
 
 with open("q-vercel-latency.json") as f:
     data = json.load(f)
+
+
+@app.options("/")
+async def preflight_handler():
+    return JSONResponse(content={}, headers={
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+    })
+
+
+
 
 @app.post("/")
 async def check_latency(request: Request):
