@@ -5,7 +5,6 @@ import numpy as np
 
 app = FastAPI()
 
-# Enable CORS for all common use cases
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
