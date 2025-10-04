@@ -5,24 +5,24 @@ import numpy as np
 
 app = FastAPI()
 
-# Make POST requests from any origin allowed
+# Enable CORS for all origins and these methods
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"] ,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"]
 )
 
-# Load the telemetry data ONCE at startup
+# Load the telemetry data once at startup
 with open("q-vercel-latency.json") as f:
     data = json.load(f)
 
 @app.post("/")
 async def check_latency(request: Request):
     payload = await request.json()
-    regions = payload["regions"]
-    threshold = payload["threshold_ms"]
+    regions = payload.get("regions", [])
+    threshold = payload.get("threshold_ms", 0)
     results = {}
     for region in regions:
         region_records = [rec for rec in data if rec["region"] == region]
@@ -30,7 +30,6 @@ async def check_latency(request: Request):
             continue
         latencies = [rec["latency_ms"] for rec in region_records]
         uptimes = [rec["uptime_pct"] for rec in region_records]
-        # Calculate mean latency/uptime
         avg_latency = float(np.mean(latencies))
         p95_latency = float(np.percentile(latencies, 95))
         avg_uptime = float(np.mean(uptimes))
