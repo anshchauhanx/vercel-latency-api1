@@ -17,8 +17,7 @@ app.add_middleware(
 with open("q-vercel-latency.json") as f:
     data = json.load(f)
 
-
-@app.options("/")
+@app.options("/api/latency")
 async def preflight_handler():
     return JSONResponse(content={}, headers={
         "Access-Control-Allow-Origin": "*",
@@ -26,10 +25,7 @@ async def preflight_handler():
         "Access-Control-Allow-Headers": "Content-Type, Authorization"
     })
 
-
-
-
-@app.post("/")
+@app.post("/api/latency")
 async def check_latency(request: Request):
     payload = await request.json()
     regions = payload.get("regions", [])
